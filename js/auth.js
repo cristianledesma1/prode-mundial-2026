@@ -2,7 +2,7 @@
 // AUTH — Google Identity Services
 // Reemplazar con tu Google OAuth Client ID:
 // ============================================================
-const GOOGLE_CLIENT_ID = "REEMPLAZAR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "297547033472-uf3rq09ghgejpuhblsplnm3ojur69im1.apps.googleusercontent.com";
 
 const Auth = (() => {
   const USER_KEY = 'prode_user';

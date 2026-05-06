@@ -2,7 +2,7 @@
 // API — Prode Mundial 2026
 // Reemplazar con la URL de tu Apps Script desplegado:
 // ============================================================
-const APPS_SCRIPT_URL = "REEMPLAZAR_APPS_SCRIPT_URL";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZWhTGvmCuLedbAJvr6J7ETzZGDmDHTR2lKo_ChTn-Nr4M42-KG6AW0RU8bOwdZmOx1A/exec";
 
 async function _get(path, params = {}) {
   const url = new URL(`${APPS_SCRIPT_URL}/${path}`);
