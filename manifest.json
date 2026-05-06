@@ -1,0 +1,27 @@
+{
+  "name": "Prode Mundial 2026",
+  "short_name": "Prode 2026",
+  "description": "App de predicciones del grupo para el Mundial 2026",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#006400",
+  "background_color": "#f0f4f0",
+  "lang": "es",
+  "categories": ["games", "sports"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+# Archivos de especificación (no van al deploy)
+PRODE_MUNDIAL_2026.md
+PROMPT_CLAUDE_CODE.md
+
+# Backend (se sube al Apps Script, no a GitHub Pages)
+backend/
