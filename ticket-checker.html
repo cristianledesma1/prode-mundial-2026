@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#006400">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>🎟️ Deportick Checker</title>
+  <style>
+    :root {
+      --green:       #006400;
+      --green-mid:   #1a7a1a;
+      --green-light: #e8f5e9;
+      --gold:        #c8970a;
+      --gold-light:  #fff8e1;
+      --red:         #c62828;
+      --red-light:   #ffebee;
+      --orange:      #e65100;
+      --blue:        #1565c0;
+      --blue-light:  #e3f2fd;
+      --bg:          #f0f4f0;
+      --card:        #ffffff;
+      --text:        #1a1a1a;
+      --text-2:      #5a5a5a;
+      --border:      #d4e0d4;
+      --radius:      12px;
+      --shadow:      0 2px 8px rgba(0,100,0,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ─────────────────── */
+    .header {
+      background: var(--green);
+      color: white;
+      padding: 14px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1  { font-size: 1.1rem; font-weight: 700; }
+    .header-sub { font-size: 0.75rem; opacity: 0.8; margin-left: auto; }
+
+    /* ── Layout ─────────────────── */
+    .container { max-width: 560px; margin: 0 auto; padding: 16px; }
+
+    /* ── Card ───────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--green);
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ── Forms ──────────────────── */
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 150ms;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--green); }
+    .form-hint { font-size: 0.75rem; color: var(--text-2); margin-top: 4px; }
+    .form-row  { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
+
+    /* ── Buttons ────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 150ms, transform 80ms;
+    }
+    .btn:active   { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-full  { width: 100%; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-red   { background: var(--red);   color: #fff; }
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-2);
+    }
+    .row { display: flex; gap: 10px; }
+    .row > * { flex: 1; }
+
+    /* ── Status Banner ──────────── */
+    .status-banner {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      transition: all 300ms;
+    }
+    .status-banner.idle     { background: #f5f5f5; border: 1.5px solid #ddd; }
+    .status-banner.running  { background: var(--blue-light); border: 1.5px solid #90caf9; }
+    .status-banner.found    { background: var(--green-light); border: 2px solid var(--green); animation: pulse 1.2s ease infinite; }
+    .status-banner.notfound { background: var(--red-light);   border: 1.5px solid #ef9a9a; }
+    .status-banner.blocked  { background: var(--gold-light);  border: 1.5px solid #ffe082; }
+    .status-banner.error    { background: var(--gold-light);  border: 1.5px solid #ffe082; }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(0,100,0,0.4); }
+      50%      { box-shadow: 0 0 0 8px rgba(0,100,0,0); }
+    }
+    .status-icon  { font-size: 1.8rem; flex-shrink: 0; }
+    .status-title { font-weight: 700; font-size: 0.95rem; }
+    .status-sub   { font-size: 0.78rem; color: var(--text-2); margin-top: 2px; }
+
+    /* ── Counters ───────────────── */
+    .counters { display: flex; gap: 10px; margin-bottom: 14px; }
+    .counter-card {
+      flex: 1;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      text-align: center;
+    }
+    .counter-num   { font-size: 1.5rem; font-weight: 800; color: var(--green); }
+    .counter-label { font-size: 0.72rem; color: var(--text-2); margin-top: 2px; }
+
+    /* ── Progress ───────────────── */
+    .progress-wrap { background: #e0e0e0; border-radius: 99px; height: 5px; overflow: hidden; margin-bottom: 14px; }
+    .progress-bar  { height: 100%; background: var(--green); border-radius: 99px; transition: width 1s linear; }
+
+    /* ── Log ────────────────────── */
+    .log-wrap { max-height: 200px; overflow-y: auto; scrollbar-width: thin; }
+    .log-entry {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.79rem;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-time { color: var(--text-2); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .log-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .log-dot.ok   { background: var(--green); }
+    .log-dot.no   { background: var(--red); }
+    .log-dot.warn { background: var(--gold); }
+    .log-msg  { flex: 1; line-height: 1.3; }
+
+    /* ── Alert bar ──────────────── */
+    .alert-bar {
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+    .alert-bar.hidden { display: none; }
+    .alert-bar.notif  { background: var(--gold-light); border: 1.5px solid #ffe082; }
+    .alert-bar.info   { background: var(--blue-light); border: 1.5px solid #90caf9; }
+
+    /* ── Spinner ────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(21,101,192,0.25);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* ── Code block ─────────────── */
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    code { font-family: 'Cascadia Code','Fira Mono',monospace; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <span style="font-size:1.5rem">🎟️</span>
+  <h1>Deportick Checker</h1>
+  <span class="header-sub">River Final Apertura 2026</span>
+</header>
+
+<div class="container">
+
+  <!-- Notification permission -->
+  <div class="alert-bar notif" id="notif-bar">
+    <span>🔔</span>
+    <span style="flex:1">Activá las notificaciones para recibir la alerta cuando salgan entradas</span>
+    <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem" id="btn-notif">Activar</button>
+  </div>
+
+  <!-- Status -->
+  <div class="status-banner idle" id="status-banner">
+    <span class="status-icon" id="status-icon">⏸️</span>
+    <div>
+      <div class="status-title" id="status-title">Listo para iniciar</div>
+      <div class="status-sub"  id="status-sub">Presioná Iniciar para empezar a monitorear</div>
+    </div>
+  </div>
+
+  <!-- Progress bar (shown while running) -->
+  <div id="progress-section" style="display:none">
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Counters -->
+  <div class="counters">
+    <div class="counter-card">
+      <div class="counter-num" id="cnt-checks">0</div>
+      <div class="counter-label">Chequeos</div>
+    </div>
+    <div class="counter-card">
+      <div class="counter-num" id="cnt-uptime">—</div>
+      <div class="counter-label">Tiempo activo</div>
+    </div>
+    <div class="counter-card">
+      <div class="counter-num" id="cnt-next">—</div>
+      <div class="counter-label">Próx. chequeo</div>
+    </div>
+  </div>
+
+  <!-- Config -->
+  <div class="card">
+    <div class="card-title">⚙️ Configuración</div>
+
+    <div class="form-group">
+      <label class="form-label" for="input-url">URL del evento</label>
+      <input id="input-url" class="form-input" type="url"
+        value="https://www.deportick.com/event/riverplatefinalapertura26"
+        autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="input-soldout">Texto "sin entradas"</label>
+        <input id="input-soldout" class="form-input" type="text" value="AGOTADO">
+        <p class="form-hint">Si aparece en la página = sin stock</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="input-interval">Intervalo</label>
+        <select id="input-interval" class="form-select">
+          <option value="30">30 segundos</option>
+          <option value="60" selected>1 minuto</option>
+          <option value="120">2 minutos</option>
+          <option value="300">5 minutos</option>
+        </select>
+      </div>
+    </div>
+
+    <details>
+      <summary style="font-size:0.8rem;color:var(--text-2);cursor:pointer;user-select:none;margin-bottom:4px">
+        Opciones avanzadas
+      </summary>
+      <div style="margin-top:12px">
+        <div class="form-group">
+          <label class="form-label" for="input-available">Texto "hay entradas" (opcional)</label>
+          <input id="input-available" class="form-input" type="text" placeholder="COMPRAR">
+          <p class="form-hint">Si lo especificás, alerta sólo cuando este texto esté presente</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-proxy">Proxy CORS</label>
+          <select id="input-proxy" class="form-select">
+            <option value="allorigins">allorigins.win</option>
+            <option value="corsproxy">corsproxy.io</option>
+            <option value="jsonp">htmldriven (otro)</option>
+          </select>
+          <p class="form-hint">Si uno falla, probá el siguiente</p>
+        </div>
+      </div>
+    </details>
+
+    <hr class="divider">
+
+    <div class="row">
+      <button class="btn btn-green" id="btn-start">▶ Iniciar</button>
+      <button class="btn btn-red"   id="btn-stop" disabled>⏹ Detener</button>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="card">
+    <div class="card-title">
+      <span>📋 Registro</span>
+      <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem;text-transform:none;letter-spacing:0" id="btn-clear">Limpiar</button>
+    </div>
+    <div class="log-wrap" id="log-wrap">
+      <p style="font-size:0.82rem;color:var(--text-2);text-align:center;padding:20px 0" id="log-empty">
+        Aún sin chequeos
+      </p>
+    </div>
+  </div>
+
+  <!-- Fallback: Python script -->
+  <div class="card" id="blocked-card" style="display:none">
+    <div class="card-title">⚠️ Deportick bloqueó las solicitudes</div>
+    <p style="font-size:0.83rem;color:var(--text-2);margin-bottom:14px;line-height:1.5">
+      Deportick detectó que la consulta viene de un servidor externo y la bloqueó (error 403).
+      Podés usar el script de Python de abajo, que corre en <strong>tu propia computadora</strong>
+      y envía notificaciones de escritorio.
+    </p>
+    <p style="font-size:0.82rem;font-weight:600;margin-bottom:8px">1. Instalá la dependencia (una sola vez):</p>
+    <pre><code>pip install requests plyer</code></pre>
+    <p style="font-size:0.82rem;font-weight:600;margin:10px 0 8px">2. Guardá este archivo como <code style="background:#eee;padding:1px 4px;border-radius:3px">checker.py</code> y ejecutalo:</p>
+    <pre><code id="python-script">import time, requests
+from plyer import notification
+
+URL      = "https://www.deportick.com/event/riverplatefinalapertura26"
+SOLDOUT  = "AGOTADO"        # texto que aparece cuando NO hay entradas
+INTERVAL = 60               # segundos entre chequeos
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/124.0 Safari/537.36",
+    "Accept-Language": "es-AR,es;q=0.9",
+}
+
+def check():
+    try:
+        r = requests.get(URL, headers=HEADERS, timeout=15)
+        html = r.text.upper()
+        if SOLDOUT.upper() not in html:
+            return True, "AGOTADO no encontrado — puede haber entradas!"
+        return False, "Sin entradas (AGOTADO encontrado)"
+    except Exception as e:
+        return None, f"Error: {e}"
+
+print(f"Chequeando cada {INTERVAL}s → {URL}")
+checks = 0
+while True:
+    ok, msg = check()
+    checks += 1
+    ts = time.strftime("%H:%M:%S")
+    print(f"[{ts}] #{checks} — {msg}")
+
+    if ok:
+        print("🎉 ¡ENTRADAS DISPONIBLES! Abriendo el navegador...")
+        notification.notify(
+            title="🎟️ ¡Entradas disponibles!",
+            message=msg,
+            timeout=30
+        )
+        import webbrowser
+        webbrowser.open(URL)
+        break
+
+    time.sleep(INTERVAL)
+</code></pre>
+    <p style="font-size:0.78rem;color:var(--text-2);margin-top:10px">
+      <strong>Ejecutá con:</strong> <code style="background:#eee;padding:1px 4px;border-radius:3px">python checker.py</code>
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ================================================================
+// Deportick Ticket Checker
+// ================================================================
+
+const PROXIES = {
+  allorigins: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  corsproxy:  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  jsonp:      u => `https://htmldriven.com/api/cors/get?url=${encodeURIComponent(u)}`,
+};
+
+const $ = id => document.getElementById(id);
+
+// ── State ──────────────────────────────────────────────────────
+let S = {
+  running: false, found: false,
+  checks: 0, blocked: 0,
+  startTime: null,
+  timerId: null, countdownId: null,
+  secondsLeft: 0, intervalSec: 60,
+};
+
+// ── Persist ────────────────────────────────────────────────────
+function save() {
+  localStorage.setItem('dtck', JSON.stringify({
+    url:       $('input-url').value,
+    soldout:   $('input-soldout').value,
+    available: $('input-available').value,
+    interval:  $('input-interval').value,
+    proxy:     $('input-proxy').value,
+  }));
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('dtck') || '{}');
+    if (d.url)       $('input-url').value       = d.url;
+    if (d.soldout)   $('input-soldout').value   = d.soldout;
+    if (d.available) $('input-available').value = d.available;
+    if (d.interval)  $('input-interval').value  = d.interval;
+    if (d.proxy)     $('input-proxy').value     = d.proxy;
+  } catch {}
+}
+
+// ── Notifications ───────────────────────────────────────────────
+function updateNotifBar() {
+  if (!('Notification' in window) || Notification.permission === 'granted')
+    $('notif-bar').classList.add('hidden');
+}
+$('btn-notif').addEventListener('click', async () => {
+  await Notification.requestPermission();
+  updateNotifBar();
+});
+
+function sendNotif(title, body) {
+  if (Notification.permission === 'granted')
+    new Notification(title, { body, icon: 'icons/icon-192.png', tag: 'dtck', renotify: true });
+}
+
+// ── Sound ───────────────────────────────────────────────────────
+function playAlert() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523, 659, 784, 1047].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f; o.type = 'sine';
+      const t = ctx.currentTime + i * 0.2;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.35, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+      o.start(t); o.stop(t + 0.4);
+    });
+  } catch {}
+}
+
+// ── Status UI ───────────────────────────────────────────────────
+const ICONS = { idle:'⏸️', running:'', found:'🎉', notfound:'❌', blocked:'🚫', error:'⚠️' };
+function setStatus(type, title, sub) {
+  const b = $('status-banner');
+  b.className = `status-banner ${type}`;
+  $('status-icon').innerHTML = type === 'running'
+    ? '<span class="spinner"></span>'
+    : (ICONS[type] || '❓');
+  $('status-title').textContent = title;
+  $('status-sub').textContent   = sub;
+}
+
+// ── Log ─────────────────────────────────────────────────────────
+function log(type, msg) {
+  const w = $('log-wrap'), e = $('log-empty');
+  if (e) e.remove();
+  const time = new Date().toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const el = document.createElement('div');
+  el.className = 'log-entry';
+  el.innerHTML = `<span class="log-time">${time}</span><span class="log-dot ${type}"></span><span class="log-msg">${msg}</span>`;
+  w.insertBefore(el, w.firstChild);
+  const all = w.querySelectorAll('.log-entry');
+  if (all.length > 80) all[all.length - 1].remove();
+}
+$('btn-clear').addEventListener('click', () => {
+  $('log-wrap').innerHTML = '<p style="font-size:0.82rem;color:var(--text-2);text-align:center;padding:20px 0" id="log-empty">Aún sin chequeos</p>';
+});
+
+// ── Counters ─────────────────────────────────────────────────────
+function updateCounters() {
+  $('cnt-checks').textContent = S.checks;
+  if (S.startTime) {
+    const sec = Math.floor((Date.now() - S.startTime) / 1000);
+    const m = Math.floor(sec/60), s = sec % 60;
+    $('cnt-uptime').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  } else {
+    $('cnt-uptime').textContent = '—';
+  }
+}
+
+// ── Countdown ────────────────────────────────────────────────────
+function startCountdown(secs) {
+  clearInterval(S.countdownId);
+  S.secondsLeft = secs;
+  $('progress-bar').style.width = '0%';
+  S.countdownId = setInterval(() => {
+    S.secondsLeft = Math.max(0, S.secondsLeft - 1);
+    $('progress-bar').style.width = `${((secs - S.secondsLeft) / secs) * 100}%`;
+    $('cnt-next').textContent = `${S.secondsLeft}s`;
+    updateCounters();
+  }, 1000);
+}
+
+// ── Check ────────────────────────────────────────────────────────
+async function doCheck() {
+  const url       = $('input-url').value.trim();
+  const soldout   = ($('input-soldout').value || 'AGOTADO').trim().toUpperCase();
+  const available = $('input-available').value.trim().toUpperCase();
+  const proxyKey  = $('input-proxy').value;
+
+  if (!url) return;
+
+  setStatus('running', 'Chequeando…', url.length > 55 ? url.slice(0, 55) + '…' : url);
+
+  let html = '', proxyUsed = proxyKey, blocked = false;
+
+  // Try selected proxy first, then fallback
+  const proxies = [proxyKey, ...Object.keys(PROXIES).filter(k => k !== proxyKey)];
+  for (const pk of proxies) {
+    try {
+      const res = await fetch(PROXIES[pk](url), { cache: 'no-store' });
+      if (res.status === 403 || res.status === 401) {
+        blocked = true;
+        continue; // try next proxy
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      html = await res.text();
+      proxyUsed = pk;
+      blocked = false;
+      break;
+    } catch (e) {
+      // try next
+    }
+  }
+
+  if (!html) {
+    if (blocked) {
+      S.blocked++;
+      log('warn', `Bloqueado por Deportick (403) — intentando otro proxy… (${S.blocked}x)`);
+      if (S.blocked >= 3) {
+        setStatus('blocked', 'Deportick bloquea las consultas externas', 'Usá el script Python que aparece abajo');
+        $('blocked-card').style.display = '';
+        stopChecker();
+      } else {
+        setStatus('blocked', 'Bloqueado por Deportick', 'Reintentando con otro proxy…');
+      }
+    } else {
+      log('warn', 'Error de red — reintentando en el próximo ciclo');
+      setStatus('error', 'Error de conexión', 'Verificá tu internet');
+    }
+    return;
+  }
+
+  // Reset blocked counter on success
+  S.blocked = 0;
+  S.checks++;
+  updateCounters();
+
+  const up = html.toUpperCase();
+  const hasSoldout  = soldout   && up.includes(soldout);
+  const hasAvail    = available ? up.includes(available) : true;
+  const ticketsOK   = !hasSoldout && hasAvail;
+
+  if (ticketsOK) {
+    // 🎉 FOUND!
+    S.found = true;
+    setStatus('found', '🎉 ¡ENTRADAS DISPONIBLES!', 'Abriendo Deportick en 3 segundos…');
+    log('ok', `✅ ¡ENTRADAS DISPONIBLES! "${soldout}" no encontrado${available ? ` y "${available}" encontrado` : ''}`);
+    playAlert();
+    sendNotif('🎟️ ¡Entradas disponibles!', `River Plate Final Apertura 2026\n${url}`);
+    stopChecker();
+    setTimeout(() => window.open(url, '_blank'), 3000);
+  } else {
+    const why = hasSoldout ? `"${soldout}" encontrado` : `"${available}" no encontrado`;
+    setStatus('notfound', 'Sin entradas por ahora',
+      `Último chequeo: ${new Date().toLocaleTimeString('es-AR')} · via ${proxyUsed}`);
+    log('no', `Sin entradas (${why}) · proxy: ${proxyUsed}`);
+  }
+
+  save();
+}
+
+// ── Start / Stop ─────────────────────────────────────────────────
+function startChecker() {
+  const url = $('input-url').value.trim();
+  if (!url) { $('input-url').focus(); highlight($('input-url')); return; }
+
+  S = { ...S, running: true, found: false, checks: 0, blocked: 0, startTime: Date.now() };
+  S.intervalSec = parseInt($('input-interval').value, 10) || 60;
+
+  $('btn-start').disabled = true;
+  $('btn-stop').disabled  = false;
+  $('input-url').disabled = true;
+  $('progress-section').style.display = '';
+  $('blocked-card').style.display = 'none';
+
+  doCheck();
+  S.timerId = setInterval(() => { if (S.running) { doCheck(); startCountdown(S.intervalSec); } }, S.intervalSec * 1000);
+  startCountdown(S.intervalSec);
+}
+
+function stopChecker() {
+  S.running = false;
+  clearInterval(S.timerId);
+  clearInterval(S.countdownId);
+  $('btn-start').disabled = false;
+  $('btn-stop').disabled  = true;
+  $('input-url').disabled = false;
+  $('progress-section').style.display = 'none';
+  $('cnt-next').textContent = '—';
+  if (!S.found) setStatus('idle', 'Detenido', `Se realizaron ${S.checks} chequeo${S.checks !== 1 ? 's' : ''}`);
+}
+
+function highlight(el) {
+  el.style.borderColor = 'var(--red)';
+  setTimeout(() => el.style.borderColor = '', 2000);
+}
+
+$('btn-start').addEventListener('click', startChecker);
+$('btn-stop').addEventListener('click',  stopChecker);
+
+// Uptime ticker
+setInterval(updateCounters, 1000);
+
+// Warn before closing while running
+window.addEventListener('beforeunload', e => {
+  if (S.running) { e.preventDefault(); e.returnValue = '¿Cerrar? El checker está activo.'; }
+});
+
+// ── Init ─────────────────────────────────────────────────────────
+load();
+updateNotifBar();
+</script>
+</body>
+</html>
