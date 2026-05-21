@@ -21,7 +21,7 @@ import sys
 # ── Configuración ──────────────────────────────────────────────
 URL      = "https://www.deportick.com/event/riverplatefinalapertura26"
 SOLDOUT  = "AGOTADO"   # texto visible en la página cuando NO hay entradas
-INTERVAL = 60          # segundos entre chequeos (no bajar de 30)
+INTERVAL = 30          # segundos entre chequeos (no bajar de 30)
 HEADLESS = True        # True = sin ventana | False = muestra el navegador
 # ──────────────────────────────────────────────────────────────
 
