@@ -5,7 +5,7 @@ Usa un navegador real (Playwright) para que el JavaScript de la
 página se ejecute y el texto "AGOTADO" se renderice correctamente.
 
 Instalación (una sola vez):
-    pip install playwright plyer
+    pip install playwright plyer pygame
     playwright install chromium
 
 Uso:
@@ -19,10 +19,11 @@ import webbrowser
 import sys
 
 # ── Configuración ──────────────────────────────────────────────
-URL      = "https://www.deportick.com/event/riverplatefinalapertura26"
-SOLDOUT  = "AGOTADO"   # texto visible en la página cuando NO hay entradas
-INTERVAL = 30          # segundos entre chequeos (no bajar de 30)
-HEADLESS = True        # True = sin ventana | False = muestra el navegador
+URL        = "https://www.deportick.com/event/riverplatefinalapertura26"
+SOLDOUT    = "AGOTADO"   # texto visible en la página cuando NO hay entradas
+INTERVAL   = 30          # segundos entre chequeos (no bajar de 30)
+HEADLESS   = True        # True = sin ventana | False = muestra el navegador
+SOUND_FILE = r"C:\Users\led_c\Downloads\ringtones-page-gallo-despertador.mp3"
 # ──────────────────────────────────────────────────────────────
 
 try:
@@ -36,6 +37,30 @@ try:
     HAS_NOTIF = True
 except ImportError:
     HAS_NOTIF = False
+
+try:
+    import pygame
+    pygame.mixer.init()
+    HAS_PYGAME = True
+except Exception:
+    HAS_PYGAME = False
+
+
+def play_sound():
+    """Reproduce el MP3 configurado en SOUND_FILE (en loop hasta que el usuario lo cierra)."""
+    if HAS_PYGAME:
+        try:
+            pygame.mixer.music.load(SOUND_FILE)
+            pygame.mixer.music.play(loops=5)  # repite 5 veces
+            return
+        except Exception as e:
+            print(f"  ⚠  No se pudo reproducir el sonido: {e}")
+    # Fallback: abrir el archivo con el reproductor por defecto de Windows
+    try:
+        import os
+        os.startfile(SOUND_FILE)
+    except Exception:
+        pass
 
 
 def notify_desktop(title, msg):
@@ -84,6 +109,7 @@ def main():
     print(f"  Intervalo: {INTERVAL}s")
     print(f"  Modo     : {'headless (sin ventana)' if HEADLESS else 'con ventana visible'}")
     print(f"  Notifs   : {'✅' if HAS_NOTIF else '❌ (pip install plyer)'}")
+    print(f"  Sonido   : {'✅ ' + SOUND_FILE if HAS_PYGAME else '❌ (pip install pygame)'}")
     print("=" * 58)
     print("  Ctrl+C para detener\n")
 
@@ -113,6 +139,7 @@ def main():
                     print(f"  {msg}")
                     print(f"  Abriendo el navegador…")
                     print(f"{'='*58}\n")
+                    play_sound()
                     notify_desktop(
                         "🎟️ ¡Entradas disponibles!",
                         f"River Plate Final Apertura 2026\n{msg}"
